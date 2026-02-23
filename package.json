@@ -1,5 +1,5 @@
 {
-  "name": "@gpstakes/ton-dev-toolkit",
+  "name": "@tesseraeventures/ton-dev-skills",
   "version": "0.1.0",
   "description": "TON blockchain development toolkit — security scanner, migration engine, MCP server, and CLI",
   "keywords": [
@@ -14,12 +14,12 @@
     "mcp",
     "defi"
   ],
-  "author": "GPStakes",
+  "author": "Tesserae Ventures",
   "license": "MIT",
-  "homepage": "https://gpstakes.com/ton-dev",
+  "homepage": "https://tesserae.ventures/ton-dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gpstakes/ton-dev-toolkit.git"
+    "url": "https://github.com/TesseraeVentures/ton-dev-skills.git"
   },
   "engines": {
     "node": ">=18.0.0"

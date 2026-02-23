@@ -4,9 +4,9 @@
     <strong>Security scanner, migration engine, MCP server & CLI for TON smart contracts</strong>
   </p>
   <p align="center">
-    <a href="https://www.npmjs.com/package/@gpstakes/ton-dev-toolkit"><img src="https://img.shields.io/npm/v/@gpstakes/ton-dev-toolkit" alt="npm"></a>
+    <a href="https://www.npmjs.com/package/@tesseraeventures/ton-dev-skills"><img src="https://img.shields.io/npm/v/@tesseraeventures/ton-dev-skills" alt="npm"></a>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-    <a href="https://discord.gg/gpstakes"><img src="https://img.shields.io/discord/placeholder?label=discord" alt="Discord"></a>
+    <a href="https://discord.gg/tesseraeventures"><img src="https://img.shields.io/discord/placeholder?label=discord" alt="Discord"></a>
   </p>
 </p>
 
@@ -96,7 +96,7 @@ $ ton-migrate --from solidity --contract contracts/MyToken.sol
 
 ```bash
 # Install from npm
-npm install -g @gpstakes/ton-dev-toolkit
+npm install -g @tesseraeventures/ton-dev-skills
 
 # Run your first audit
 ton-audit ./contracts/my-contract.fc
@@ -146,7 +146,7 @@ Then ask your AI assistant things like:
 | **Support** | Community | Priority | Dedicated + on-prem |
 | **Price** | $0 | $29/mo | Contact us |
 
-→ [Get started free](https://gpstakes.com/ton-dev) · [Upgrade to Pro](https://gpstakes.com/ton-dev/pro)
+→ [Get started free](https://tesserae.ventures/ton-dev) · [Upgrade to Pro](https://tesserae.ventures/ton-dev/pro)
 
 ## 📚 Documentation
 
@@ -160,10 +160,10 @@ Then ask your AI assistant things like:
 
 ## 🔗 Links
 
-- **npm:** [@gpstakes/ton-dev-toolkit](https://www.npmjs.com/package/@gpstakes/ton-dev-toolkit)
-- **Docs:** [docs.gpstakes.com/ton-dev](https://docs.gpstakes.com/ton-dev) *(coming soon)*
-- **Discord:** [discord.gg/gpstakes](https://discord.gg/gpstakes)
-- **Website:** [gpstakes.com](https://gpstakes.com)
+- **npm:** [@tesseraeventures/ton-dev-skills](https://www.npmjs.com/package/@tesseraeventures/ton-dev-skills)
+- **Docs:** [docs.tesserae.ventures/ton-dev](https://docs.tesserae.ventures/ton-dev) *(coming soon)*
+- **Discord:** [discord.gg/tesseraeventures](https://discord.gg/tesseraeventures)
+- **Website:** [tesserae.ventures](https://tesserae.ventures)
 
 ## 📄 License
 

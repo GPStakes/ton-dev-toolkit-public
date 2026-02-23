@@ -15,7 +15,7 @@ The core scanner rules, migration engine logic, and security analysis implementa
 
 ## How to Contribute
 
-1. **Bug Reports & Feature Requests** — Open a [GitHub Issue](https://github.com/gpstakes/ton-dev-toolkit/issues)
+1. **Bug Reports & Feature Requests** — Open a [GitHub Issue](https://github.com/TesseraeVentures/ton-dev-skills/issues)
 2. **Documentation** — Fork, edit, submit a PR
 3. **Templates** — Fork, add your template under a new branch, submit a PR with:
    - Contract source (Tact or FunC)
@@ -25,8 +25,8 @@ The core scanner rules, migration engine logic, and security analysis implementa
 ## Development Setup
 
 ```bash
-git clone https://github.com/gpstakes/ton-dev-toolkit.git
-cd ton-dev-toolkit
+git clone https://github.com/TesseraeVentures/ton-dev-skills.git
+cd ton-dev-skills
 
 # Documentation changes — just edit markdown files
 # Template contributions — add to templates/ directory
@@ -38,5 +38,5 @@ Be respectful, constructive, and collaborative. We're building tools for the TON
 
 ## Questions?
 
-- **Discord:** [discord.gg/gpstakes](https://discord.gg/gpstakes)
-- **Email:** dev@gpstakes.com
+- **Discord:** [discord.gg/tesseraeventures](https://discord.gg/tesseraeventures)
+- **Email:** dev@tesserae.ventures

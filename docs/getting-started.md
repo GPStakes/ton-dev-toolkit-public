@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install -g @gpstakes/ton-dev-toolkit
+npm install -g @tesseraeventures/ton-dev-skills
 ```
 
 Requires Node.js 18+.

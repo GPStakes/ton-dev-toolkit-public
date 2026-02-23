@@ -59,7 +59,7 @@ The scanner includes **45+ rules** across **19 categories**:
 # GitHub Actions example
 - name: TON Security Audit
   run: |
-    npm install -g @gpstakes/ton-dev-toolkit
+    npm install -g @tesseraeventures/ton-dev-skills
     ton-audit ./contracts/ --format sarif --output results.sarif
 
 - name: Upload SARIF

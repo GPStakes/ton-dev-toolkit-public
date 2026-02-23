@@ -38,5 +38,4 @@ Be respectful, constructive, and collaborative. We're building tools for the TON
 
 ## Questions?
 
-- **Discord:** [discord.gg/tesseraeventures](https://discord.gg/tesseraeventures)
-- **Email:** dev@tesserae.ventures
+- **GitHub Issues:** [TesseraeVentures/ton-dev-skills](https://github.com/TesseraeVentures/ton-dev-skills/issues)

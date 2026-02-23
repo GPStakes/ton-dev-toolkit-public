@@ -1,6 +1,6 @@
 # Security Scanner
 
-The TON Dev Toolkit security scanner analyzes FunC, Tact, and Tolk smart contracts for vulnerabilities, bad practices, and TEP compliance issues.
+The TON Dev Skills security scanner analyzes FunC, Tact, and Tolk smart contracts for vulnerabilities, bad practices, and TEP compliance issues.
 
 ## Supported Languages
 
@@ -10,7 +10,7 @@ The TON Dev Toolkit security scanner analyzes FunC, Tact, and Tolk smart contrac
 
 ## Scanner Categories
 
-The scanner includes **45+ rules** across **19 categories**:
+The scanner includes **50+ rules** across **21 categories**:
 
 ### 🔴 Critical & High Severity
 
@@ -27,6 +27,7 @@ The scanner includes **45+ rules** across **19 categories**:
 |----------|---------------|
 | **Arithmetic Safety** | Integer overflow/underflow, unsafe division |
 | **Bounced Messages** | Missing bounce handlers, unhandled bounced transfers |
+| **Cross-Contract Safety** | Unsafe message chains, missing response validation |
 | **Data Validation** | Unchecked input data, missing slice/cell validation |
 | **External Messages** | Unsafe external message handlers, missing authentication |
 | **Gas & Fees** | Insufficient gas forwarding, missing fee calculations |
@@ -44,7 +45,27 @@ The scanner includes **45+ rules** across **19 categories**:
 | **Storage** | Inefficient storage layout, unnecessary reads/writes |
 | **TEP Compliance** | TEP-62, TEP-64, TEP-74, TEP-81, TEP-85, TEP-89 conformance |
 | **Timestamp** | Unsafe time-based logic, block time manipulation |
+| **TVM Internals** | Incorrect opcode usage, stack depth issues |
 | **Upgradeability** | Unsafe upgrade patterns, missing migration logic |
+
+## Usage
+
+```bash
+# Audit a single file
+ton-dev audit ./contracts/jetton-minter.fc
+
+# Audit an entire directory
+ton-dev audit ./contracts/
+
+# Filter by severity
+ton-dev audit ./contracts/ --severity medium
+
+# Output as JSON for CI/CD
+ton-dev audit ./contracts/ --format json --output results.json
+
+# Output as SARIF for GitHub Code Scanning
+ton-dev audit ./contracts/ --format sarif --output results.sarif
+```
 
 ## Output Formats
 
@@ -59,8 +80,8 @@ The scanner includes **45+ rules** across **19 categories**:
 # GitHub Actions example
 - name: TON Security Audit
   run: |
-    npm install -g @tesseraeventures/ton-dev-skills
-    ton-audit ./contracts/ --format sarif --output results.sarif
+    npm install -g @tesserae/ton-dev-skills
+    ton-dev audit ./contracts/ --format sarif --output results.sarif
 
 - name: Upload SARIF
   uses: github/codeql-action/upload-sarif@v2

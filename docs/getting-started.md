@@ -3,21 +3,10 @@
 ## Installation
 
 ```bash
-npm install -g @tesseraeventures/ton-dev-skills
+npm install -g @tesserae/ton-dev-skills
 ```
 
 Requires Node.js 18+.
-
-## Authentication
-
-```bash
-# Free tier — no auth required for up to 5 audits/day
-ton-audit ./contract.fc
-
-# Pro/Enterprise — authenticate with your API key
-ton-auth login
-# Opens browser for authentication
-```
 
 ## Quick Start
 
@@ -25,39 +14,59 @@ ton-auth login
 
 ```bash
 # Audit a FunC contract
-ton-audit ./contracts/jetton-minter.fc
+ton-dev audit ./contracts/jetton-minter.fc
 
 # Audit a Tact contract
-ton-audit ./contracts/nft-collection.tact
+ton-dev audit ./contracts/nft-collection.tact
 
 # Audit with JSON output
-ton-audit ./contracts/jetton-minter.fc --format json --output report.json
+ton-dev audit ./contracts/jetton-minter.fc --format json --output report.json
 ```
 
-### 2. Migrate from Solidity (Pro)
-
-```bash
-# Migrate an ERC-20 to Jetton
-ton-migrate --from solidity --contract ./MyToken.sol
-
-# Migrate with custom output directory
-ton-migrate --from solidity --contract ./MyNFT.sol --output ./ton-contracts/
-```
-
-### 3. Scaffold a New Contract
+### 2. Scaffold a New Contract
 
 ```bash
 # Create a new Jetton from template
-ton-scaffold jetton --name "MyToken" --symbol "MTK"
+ton-dev scaffold jetton --name "MyToken" --symbol "MTK"
 
 # Create an NFT collection
-ton-scaffold nft-collection --name "MyNFTs"
+ton-dev scaffold nft-collection --name "MyNFTs"
 ```
 
-### 4. Start MCP Server (Pro)
+### 3. Compile and Deploy
 
 ```bash
-ton-mcp start
+# Compile a contract
+ton-dev compile ./contracts/jetton-minter.fc
+
+# Deploy to testnet
+ton-dev deploy ./build/jetton-minter.boc --network testnet
+```
+
+### 4. Debug TVM Errors
+
+```bash
+# Explain an exit code
+ton-dev debug 9
+
+# Trace a transaction
+ton-dev debug tx EQ...abc123
+```
+
+### 5. Migrate from Solidity (Pro)
+
+```bash
+# Migrate an ERC-20 to Jetton
+ton-dev migrate --from solidity --contract ./MyToken.sol
+
+# Dry run — see what would be generated
+ton-dev migrate --from solidity --contract ./MyToken.sol --dry-run
+```
+
+### 6. Start MCP Server (Pro)
+
+```bash
+ton-dev mcp start
 ```
 
 See [MCP Server docs](mcp-server.md) for IDE integration.

@@ -1,13 +1,15 @@
 # CLI Reference
 
+All commands use the `ton-dev` binary with subcommands.
+
 ## Commands
 
-### `ton-audit`
+### `ton-dev audit`
 
 Run a security audit on one or more contracts.
 
 ```
-ton-audit <path> [options]
+ton-dev audit <path> [options]
 
 Arguments:
   path                Contract file or directory to audit
@@ -19,31 +21,28 @@ Options:
   --categories <list> Comma-separated categories to check (default: all)
   --no-color          Disable colored output
   -q, --quiet         Only output findings (no banner/summary)
+  --json              Machine-readable JSON output
   -h, --help          Show help
 ```
 
-### `ton-migrate` (Pro)
+### `ton-dev compile`
 
-Migrate an EVM contract to TON.
+Compile a FunC, Tact, or Tolk contract.
 
 ```
-ton-migrate [options]
+ton-dev compile <path> [options]
 
 Options:
-  --from <chain>      Source chain: solidity (default: solidity)
-  --contract <path>   Path to source contract
-  --lang <language>   Output language: tact, func (default: tact)
-  --output <dir>      Output directory (default: ./output/)
-  --dry-run           Show migration plan without generating files
+  --output <file>     Output BOC file path
   -h, --help          Show help
 ```
 
-### `ton-scaffold`
+### `ton-dev scaffold`
 
 Generate a new contract from a template.
 
 ```
-ton-scaffold <template> [options]
+ton-dev scaffold <template> [options]
 
 Templates:
   jetton              Jetton master + wallet (TEP-74)
@@ -56,29 +55,28 @@ Templates:
 Options:
   --name <name>       Contract/token name
   --symbol <symbol>   Token symbol
+  --type <language>   Output language: tact, func (default: tact)
   --output <dir>      Output directory (default: ./)
-  --lang <language>   Output language: tact, func (default: tact)
   -h, --help          Show help
 ```
 
-### `ton-compile`
+### `ton-dev init`
 
-Compile a FunC, Tact, or Tolk contract.
+Initialize a TON project in the current directory.
 
 ```
-ton-compile <path> [options]
+ton-dev init [options]
 
 Options:
-  --output <file>     Output BOC file path
   -h, --help          Show help
 ```
 
-### `ton-deploy`
+### `ton-dev deploy`
 
 Deploy a compiled contract.
 
 ```
-ton-deploy <boc> [options]
+ton-dev deploy <boc> [options]
 
 Options:
   --network <net>     Network: testnet, mainnet (default: testnet)
@@ -87,12 +85,51 @@ Options:
   -h, --help          Show help
 ```
 
-### `ton-test-gen` (Pro)
+### `ton-dev debug`
+
+Explain TVM exit codes or trace transactions.
+
+```
+ton-dev debug <exit-code>    Explain a TVM exit code
+ton-dev debug tx <tx-hash>   Trace a transaction
+
+Options:
+  -h, --help          Show help
+```
+
+### `ton-dev gas`
+
+Estimate gas usage for a contract.
+
+```
+ton-dev gas estimate <boc> [options]
+
+Options:
+  -h, --help          Show help
+```
+
+### `ton-dev migrate` (Pro)
+
+Migrate an EVM contract to TON.
+
+```
+ton-dev migrate [options]
+
+Options:
+  --from <chain>      Source chain: solidity (default: solidity)
+  --contract <path>   Path to source contract
+  --lang <language>   Output language: tact, func (default: tact)
+  --output <dir>      Output directory (default: ./output/)
+  --dry-run           Show migration plan without generating files
+  -h, --help          Show help
+```
+
+### `ton-dev test-gen` (Pro)
 
 Generate test cases for a contract.
 
 ```
-ton-test-gen <path> [options]
+ton-dev test-gen <path> [options]
 
 Options:
   --framework <fw>    Test framework: sandbox, jest (default: sandbox)
@@ -100,26 +137,12 @@ Options:
   -h, --help          Show help
 ```
 
-### `ton-fetch`
-
-Fetch on-chain contract code.
-
-```
-ton-fetch <address> [options]
-
-Options:
-  --network <net>     Network: testnet, mainnet (default: mainnet)
-  --output <file>     Save to file
-  --disasm            Also disassemble the code
-  -h, --help          Show help
-```
-
-### `ton-mcp` (Pro)
+### `ton-dev mcp` (Pro)
 
 Start the MCP server.
 
 ```
-ton-mcp start [options]
+ton-dev mcp start [options]
 
 Options:
   --transport <type>  Transport: stdio, sse (default: stdio)
@@ -127,12 +150,14 @@ Options:
   -h, --help          Show help
 ```
 
-### `ton-auth`
+## Global Options
 
-Manage authentication.
+These options work with any command:
 
 ```
-ton-auth login        Open browser to authenticate
-ton-auth logout       Clear stored credentials
-ton-auth status       Show current plan and usage
+  --help, -h          Show help
+  --version, -v       Show version
+  --json              Machine-readable JSON output
+  --quiet, -q         Suppress non-essential output
+  --verbose           Show detailed output
 ```

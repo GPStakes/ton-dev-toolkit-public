@@ -2,6 +2,8 @@
 
 Convert EVM smart contracts to TON-native equivalents automatically.
 
+**Requires Pro or Enterprise plan.**
+
 ## Supported Migrations
 
 | Source (EVM) | Target (TON) | Standard |
@@ -34,16 +36,16 @@ Generated contracts are in **Tact** by default. FunC output is available with `-
 
 ```bash
 # Basic migration
-ton-migrate --from solidity --contract ./MyToken.sol
+ton-dev migrate --from solidity --contract ./MyToken.sol
 
 # Specify output language
-ton-migrate --from solidity --contract ./MyToken.sol --lang func
+ton-dev migrate --from solidity --contract ./MyToken.sol --lang func
 
 # Custom output directory
-ton-migrate --from solidity --contract ./MyNFT.sol --output ./ton/
+ton-dev migrate --from solidity --contract ./MyNFT.sol --output ./ton/
 
 # Dry run — show what would be generated
-ton-migrate --from solidity --contract ./MyToken.sol --dry-run
+ton-dev migrate --from solidity --contract ./MyToken.sol --dry-run
 ```
 
 ## Limitations

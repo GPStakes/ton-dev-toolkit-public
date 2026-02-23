@@ -1,32 +1,52 @@
 <p align="center">
-  <h1 align="center">🔒 TON Dev Toolkit</h1>
+  <h1 align="center">🔒 TON Dev Skills</h1>
   <p align="center">
     <strong>Security scanner, migration engine, MCP server & CLI for TON smart contracts</strong>
   </p>
   <p align="center">
-    <a href="https://www.npmjs.com/package/@tesseraeventures/ton-dev-skills"><img src="https://img.shields.io/npm/v/@tesseraeventures/ton-dev-skills" alt="npm"></a>
+    <a href="https://www.npmjs.com/package/@tesserae/ton-dev-skills"><img src="https://img.shields.io/npm/v/@tesserae/ton-dev-skills" alt="npm"></a>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-    <a href="https://discord.gg/tesseraeventures"><img src="https://img.shields.io/discord/placeholder?label=discord" alt="Discord"></a>
   </p>
 </p>
 
 ---
 
-**TON Dev Toolkit** is a comprehensive development and security platform for the TON blockchain. It scans FunC, Tact, and Tolk contracts for vulnerabilities, migrates Solidity contracts to TON-native equivalents, and integrates directly into your AI-powered IDE via MCP.
+**TON Dev Skills** is a comprehensive development and security platform for the TON blockchain. It scans FunC, Tact, and Tolk contracts for vulnerabilities, migrates Solidity contracts to TON-native equivalents, and integrates directly into your AI-powered IDE via MCP.
 
 ## ✨ What You Get
 
 | Feature | Description |
 |---------|-------------|
-| **Security Scanner** | 45+ rules across 19 categories — from reentrancy to TEP compliance |
+| **Security Scanner** | 50+ rules across 21 categories — from reentrancy to TEP compliance |
 | **Migration Engine** | Convert ERC-20, ERC-721, ERC-1155 and more from EVM → TON (Jettons, NFTs, SBTs) |
 | **MCP Server** | Use scanner, migration, and contract tools directly in Claude, Cursor, Windsurf, etc. |
 | **CLI** | Audit, compile, deploy, scaffold, and test-generate from the command line |
 | **Contract Templates** | Production-ready Jetton, NFT, DAO, DEX, and multisig templates |
 
+## 🚀 Getting Started
+
+```bash
+# Install from npm
+npm install -g @tesserae/ton-dev-skills
+
+# Run your first audit
+ton-dev audit ./contracts/my-contract.fc
+
+# Scaffold a new contract
+ton-dev scaffold jetton --name "MyToken" --symbol "MTK"
+
+# Compile a contract
+ton-dev compile ./contracts/my-contract.fc
+
+# Start the MCP server (for Claude, Cursor, etc.)
+ton-dev mcp start
+```
+
+👉 **[Full Getting Started Guide →](docs/getting-started.md)**
+
 ## 🔍 Scanner Categories
 
-The security scanner checks **45+ rules** across these categories:
+The security scanner checks **50+ rules** across these categories:
 
 | | | | |
 |---|---|---|---|
@@ -34,19 +54,20 @@ The security scanner checks **45+ rules** across these categories:
 | Code Injection | Compilation | Data Validation | Denial of Service |
 | External Messages | Gas & Fees | Integer Handling | Randomness |
 | Replay Protection | Reentrancy | State Management | Storage |
-| TEP Compliance | Timestamp | Upgradeability | |
+| TEP Compliance | Timestamp | Upgradeability | TVM Internals |
+| Cross-Contract Safety | | | |
 
-## 📊 Sample Scanner Output
+## 📊 Sample Output
 
 ```
-$ ton-audit contracts/my-jetton.fc
+$ ton-dev audit contracts/my-jetton.fc
 
-  TON Dev Toolkit — Security Audit
+  TON Dev Skills — Security Audit
   ═══════════════════════════════════
 
   Contract: contracts/my-jetton.fc
   Language:  FunC
-  Rules:     45 checked
+  Rules:     53 checked
 
   ┌──────────┬────────────────────────────────────┬──────────┐
   │ Severity │ Finding                            │ Line     │
@@ -68,12 +89,12 @@ $ ton-audit contracts/my-jetton.fc
   Full report: ./audit-report-1708099200.json
 ```
 
-## 🔄 Sample Migration Output
+## 🔄 Migration Example
 
 ```
-$ ton-migrate --from solidity --contract contracts/MyToken.sol
+$ ton-dev migrate --from solidity --contract contracts/MyToken.sol
 
-  TON Dev Toolkit — Migration Engine
+  TON Dev Skills — Migration Engine
   ═══════════════════════════════════
 
   Source:     contracts/MyToken.sol (ERC-20)
@@ -92,23 +113,20 @@ $ ton-migrate --from solidity --contract contracts/MyToken.sol
           ./output/migration-report.md
 ```
 
-## 🚀 Getting Started
+## 🛠️ CLI Commands
 
-```bash
-# Install from npm
-npm install -g @tesseraeventures/ton-dev-skills
-
-# Run your first audit
-ton-audit ./contracts/my-contract.fc
-
-# Migrate a Solidity contract
-ton-migrate --from solidity --contract ./MyToken.sol
-
-# Start the MCP server (for Claude, Cursor, etc.)
-ton-mcp start
-```
-
-👉 **[Full Getting Started Guide →](docs/getting-started.md)**
+| Command | Description | Plan |
+|---------|-------------|------|
+| `ton-dev audit <path>` | Security audit a contract or directory | Free |
+| `ton-dev compile <file>` | Compile a FunC, Tact, or Tolk contract | Free |
+| `ton-dev scaffold <template>` | Generate a contract from template | Free |
+| `ton-dev init` | Initialize a TON project | Free |
+| `ton-dev deploy <boc>` | Deploy a compiled contract | Free |
+| `ton-dev debug <exit-code>` | Explain a TVM exit code | Free |
+| `ton-dev gas estimate <boc>` | Estimate gas usage | Free |
+| `ton-dev migrate <file>` | Migrate an EVM contract to TON | Pro |
+| `ton-dev test-gen <file>` | Generate test cases | Pro |
+| `ton-dev mcp start` | Start the MCP server | Pro |
 
 ## 🤖 MCP Integration
 
@@ -118,8 +136,8 @@ Add to your Claude Desktop or Cursor config:
 {
   "mcpServers": {
     "ton-dev": {
-      "command": "ton-mcp",
-      "args": ["start"]
+      "command": "ton-dev",
+      "args": ["mcp", "start"]
     }
   }
 }
@@ -138,15 +156,13 @@ Then ask your AI assistant things like:
 | | Free | Pro | Enterprise |
 |---|---|---|---|
 | **Security Audits** | 5/day | Unlimited | Unlimited |
-| **Scanner Rules** | 45+ | 45+ | 45+ + custom rules |
+| **Scanner Rules** | 50+ | 50+ | 50+ + custom rules |
 | **Migration Engine** | — | ✅ | ✅ |
 | **MCP Server** | — | ✅ | ✅ |
 | **Contract Templates** | Basic | All | All + custom |
-| **CLI Tools** | Audit only | Full suite | Full suite |
-| **Support** | Community | Priority | Dedicated + on-prem |
+| **CLI Tools** | Core (audit, compile, scaffold, deploy, debug, gas) | Full suite | Full suite |
+| **Support** | Community | Priority | Dedicated |
 | **Price** | $0 | $29/mo | Contact us |
-
-→ [Get started free](https://tesserae.ventures/ton-dev) · [Upgrade to Pro](https://tesserae.ventures/ton-dev/pro)
 
 ## 📚 Documentation
 
@@ -160,10 +176,8 @@ Then ask your AI assistant things like:
 
 ## 🔗 Links
 
-- **npm:** [@tesseraeventures/ton-dev-skills](https://www.npmjs.com/package/@tesseraeventures/ton-dev-skills)
-- **Docs:** [docs.tesserae.ventures/ton-dev](https://docs.tesserae.ventures/ton-dev) *(coming soon)*
-- **Discord:** [discord.gg/tesseraeventures](https://discord.gg/tesseraeventures)
-- **Website:** [tesserae.ventures](https://tesserae.ventures)
+- **npm:** [@tesserae/ton-dev-skills](https://www.npmjs.com/package/@tesserae/ton-dev-skills)
+- **GitHub:** [TesseraeVentures/ton-dev-skills](https://github.com/TesseraeVentures/ton-dev-skills)
 
 ## 📄 License
 

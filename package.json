@@ -1,6 +1,6 @@
 {
   "name": "@tesserae/ton-dev-skills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TON blockchain development toolkit — security scanner, migration engine, MCP server, and CLI",
   "keywords": [
     "ton",
@@ -26,7 +26,9 @@
   },
   "files": [
     "dist/**",
-    "README.md"
+    "examples/**",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=18.0.0"

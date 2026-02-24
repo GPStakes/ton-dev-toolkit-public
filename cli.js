@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VERSION = '0.1.3';
+const VERSION = '0.1.4';
 
 const COLORS = {
   reset: '\x1b[0m',
@@ -49,10 +49,12 @@ function help() {
 
 Usage:
   ton-dev doctor [--json]
-  ton-dev init [directory]
+  ton-dev init [directory] [--ci]
+  ton-dev ci --github [--out <dir>]
   ton-dev demo [--json] [--ci] [--pass|--fail] [--out <dir>]
   ton-dev audit <file|dir> [--format table|json|sarif] [--out <file>] [--explain]
   ton-dev scorecard [--json]
+  ton-dev report --judge [--out <file>]
   ton-dev rules --ton
   ton-dev --version
 
@@ -96,7 +98,7 @@ function cmdDoctor(args) {
   process.exit(allOk ? 0 : 1);
 }
 
-function cmdInit(dir = '.') {
+function cmdInit(dir = '.', withCi = false) {
   const root = path.resolve(process.cwd(), dir);
   fs.mkdirSync(path.join(root, 'contracts'), { recursive: true });
   fs.mkdirSync(path.join(root, 'reports'), { recursive: true });
@@ -115,7 +117,12 @@ function cmdInit(dir = '.') {
     });
   }
 
+  if (withCi) {
+    writeGithubWorkflow(path.join(root, '.github', 'workflows'));
+  }
+
   console.log(c('green', `Initialized TON Dev project at ${root}`));
+  if (withCi) console.log(c('green', 'Added GitHub Actions workflow for SARIF upload.'));
   console.log(`Next: ton-dev audit ${path.relative(process.cwd(), samplePath)} --format table --explain`);
 }
 
@@ -139,8 +146,8 @@ function cmdRules(args) {
   });
 }
 
-function cmdScorecard(args) {
-  const score = {
+function getScorecard() {
+  return {
     package: '@tesserae/ton-dev-skills',
     version: VERSION,
     capabilities: {
@@ -149,20 +156,56 @@ function cmdScorecard(args) {
       deterministicDemoCI: true,
       machineReadableDoctor: true,
       npxFirstExperience: true,
-      mcpReadySurface: true
+      mcpReadySurface: true,
+      judgeReportCommand: true,
+      ciWorkflowBootstrap: true
     },
     differentiators: [
       'TON-native static checks focused on async/bounce/replay realities',
       'One-command CI demo artifacts (summary + SARIF)',
-      'npx-first workflow optimized for evaluator speed'
+      'npx-first workflow optimized for evaluator speed',
+      'Built-in judge report and CI bootstrap for fastest evaluator onboarding'
     ]
   };
+}
+
+function cmdScorecard(args) {
+  const score = getScorecard();
   if (hasFlag(args, '--json')) return console.log(JSON.stringify(score, null, 2));
   console.log(`\n${c('bold', 'TON Dev Skills Scorecard')}\n`);
   console.log(`Version: ${VERSION}`);
   Object.entries(score.capabilities).forEach(([k, v]) => console.log(`- ${k}: ${v ? 'yes' : 'no'}`));
   console.log('\nDifferentiators:');
   score.differentiators.forEach(d => console.log(`- ${d}`));
+}
+
+function writeGithubWorkflow(outDir) {
+  fs.mkdirSync(outDir, { recursive: true });
+  const wf = `name: ton-dev-skills-audit\n\non:\n  push:\n  pull_request:\n\njobs:\n  ton-audit:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n      - name: Run TON audit (SARIF)\n        run: |\n          npx -y @tesserae/ton-dev-skills audit contracts --format sarif --out ton-dev.sarif || true\n      - name: Upload SARIF\n        uses: github/codeql-action/upload-sarif@v3\n        with:\n          sarif_file: ton-dev.sarif\n`;
+  fs.writeFileSync(path.join(outDir, 'ton-dev-skills.yml'), wf);
+}
+
+function cmdCI(args) {
+  if (!hasFlag(args, '--github')) {
+    console.error('Usage: ton-dev ci --github [--out <dir>]');
+    process.exit(1);
+  }
+  const out = path.resolve(process.cwd(), getFlag(args, '--out', '.github/workflows'));
+  writeGithubWorkflow(out);
+  console.log(c('green', `Wrote GitHub workflow: ${path.join(out, 'ton-dev-skills.yml')}`));
+}
+
+function cmdReport(args) {
+  if (!hasFlag(args, '--judge')) {
+    console.error('Usage: ton-dev report --judge [--out <file>]');
+    process.exit(1);
+  }
+  const out = path.resolve(process.cwd(), getFlag(args, '--out', 'GRANT_EVIDENCE.md'));
+  const score = getScorecard();
+  const ts = new Date().toISOString();
+  const body = `# TON Dev Skills — Grant Evidence\n\nGenerated: ${ts}\nVersion: ${VERSION}\n\n## Judge Quick Run\n\n\`\`\`bash\nnpx -y @tesserae/ton-dev-skills doctor --json\nnpx -y @tesserae/ton-dev-skills demo --pass --ci --out ./.ton-dev-artifacts\nnpx -y @tesserae/ton-dev-skills demo --fail --ci --out ./.ton-dev-artifacts\n\`\`\`\n\n## Core Capabilities\n\n${Object.entries(score.capabilities).map(([k,v])=>`- ${k}: ${v ? 'yes' : 'no'}`).join('\n')}\n\n## TON-native Differentiators\n\n${score.differentiators.map(d=>`- ${d}`).join('\n')}\n\n## Recommended Artifacts to Attach\n\n- ./.ton-dev-artifacts/demo-summary.json\n- ./.ton-dev-artifacts/demo.sarif\n- output of \`ton-dev scorecard --json\`\n`; 
+  fs.writeFileSync(out, body);
+  console.log(c('green', `Wrote judge report: ${out}`));
 }
 
 function collectFiles(inputPath) {
@@ -352,9 +395,11 @@ function main() {
 
   try {
     if (cmd === 'doctor') return cmdDoctor(args);
-    if (cmd === 'init') return cmdInit(args[0] || '.');
+    if (cmd === 'init') return cmdInit(args.find(a => !a.startsWith('--')) || '.', hasFlag(args, '--ci'));
+    if (cmd === 'ci') return cmdCI(args);
     if (cmd === 'rules') return cmdRules(args);
     if (cmd === 'scorecard') return cmdScorecard(args);
+    if (cmd === 'report') return cmdReport(args);
     if (cmd === 'audit') return cmdAudit(args);
     if (cmd === 'demo') return cmdDemo(args);
     console.error(`Unknown command: ${cmd}`);

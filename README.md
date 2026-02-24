@@ -10,44 +10,50 @@ npm i -g @tesserae/ton-dev-skills
 npx -y @tesserae/ton-dev-skills doctor --json
 ```
 
+## Why this is more evaluator-friendly than typical TON tooling
+
+Compared to standard scaffolding-first tools (e.g., Blueprint), TON Dev Skills optimizes for **proof + security + automation**:
+- deterministic PASS/FAIL demo modes in one command
+- machine-readable JSON/SARIF outputs for CI and grant reviewers
+- one-command judge report generation
+- one-command GitHub CI workflow bootstrap
+
+## Top 3 new priorities shipped (v0.1.4)
+
+1. **Judge report generator**
+```bash
+ton-dev report --judge --out GRANT_EVIDENCE.md
+```
+
+2. **CI workflow bootstrap**
+```bash
+ton-dev ci --github
+```
+
+3. **Init with CI on day one**
+```bash
+ton-dev init my-ton-project --ci
+```
+
 ## 60-second judge path
 
 ```bash
 npx -y @tesserae/ton-dev-skills doctor --json
 npx -y @tesserae/ton-dev-skills demo --pass --ci --out ./.ton-dev-artifacts
-cat ./.ton-dev-artifacts/demo-summary.json
+npx -y @tesserae/ton-dev-skills demo --fail --ci --out ./.ton-dev-artifacts
+npx -y @tesserae/ton-dev-skills report --judge --out GRANT_EVIDENCE.md
 ```
 
 ## Commands
 
 - `ton-dev doctor [--json]`
-- `ton-dev init [dir]`
+- `ton-dev init [dir] [--ci]`
+- `ton-dev ci --github [--out <dir>]`
 - `ton-dev demo [--json] [--ci] [--pass|--fail] [--out <dir>]`
 - `ton-dev audit <file|dir> [--format table|json|sarif] [--out <file>] [--explain]`
 - `ton-dev rules --ton`
 - `ton-dev scorecard [--json]`
-
-## Why this helps evaluators fast
-
-- Deterministic CI demo output (`CI_RESULT=...` + JSON + SARIF)
-- TON-native security checks (bounce/replay/auth/gas/send-mode focus)
-- Machine-readable outputs for automation and screenshots
-
-## Quick examples
-
-```bash
-# Safe pass-mode demo
-npx -y @tesserae/ton-dev-skills demo --pass --ci --out ./.ton-dev-artifacts
-
-# Finding-mode demo
-npx -y @tesserae/ton-dev-skills demo --fail --ci --out ./.ton-dev-artifacts
-
-# Explain findings in table mode
-npx -y @tesserae/ton-dev-skills audit examples/jetton.fc --format table --explain
-
-# Emit SARIF file
-npx -y @tesserae/ton-dev-skills audit examples/jetton.fc --format sarif --out report.sarif
-```
+- `ton-dev report --judge [--out <file>]`
 
 ## Links
 

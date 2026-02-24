@@ -1,6 +1,8 @@
 node_modules/
 dist/
 build/
+.ton-dev-artifacts/
+*.sarif
 *.boc
 .env
 .DS_Store

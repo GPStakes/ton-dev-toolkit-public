@@ -3,14 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const VERSION = '0.1.1';
+const VERSION = '0.1.2';
 
 const COLORS = {
   reset: '\x1b[0m',
   bold: '\x1b[1m',
   red: '\x1b[31m',
   yellow: '\x1b[33m',
-  blue: '\x1b[34m',
   green: '\x1b[32m',
   gray: '\x1b[90m'
 };
@@ -20,43 +19,38 @@ function c(color, text) {
   return `${COLORS[color] || ''}${text}${COLORS.reset}`;
 }
 
+function getFlag(args, name, defaultValue = null) {
+  const eq = args.find(a => a.startsWith(`${name}=`));
+  if (eq) return eq.split('=').slice(1).join('=');
+  const i = args.indexOf(name);
+  if (i >= 0 && args[i + 1] && !args[i + 1].startsWith('--')) return args[i + 1];
+  return defaultValue;
+}
+
+function hasFlag(args, name) {
+  return args.includes(name) || args.some(a => a.startsWith(`${name}=`));
+}
+
+function writeJson(file, obj) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(obj, null, 2));
+}
+
 function help() {
   console.log(`\n${c('bold', 'TON Dev Skills v' + VERSION)}
 
 Usage:
-  ton-dev doctor
+  ton-dev doctor [--json]
   ton-dev init [directory]
-  ton-dev demo [--json]
-  ton-dev audit <file|dir> [--format table|json|sarif]
+  ton-dev demo [--json] [--ci] [--out <dir>]
+  ton-dev audit <file|dir> [--format table|json|sarif] [--out <file>]
   ton-dev rules --ton
   ton-dev --version
 
-Examples:
-  npx @tesserae/ton-dev-skills doctor
-  npx @tesserae/ton-dev-skills demo
-  npx @tesserae/ton-dev-skills audit examples/jetton.fc --format table
+Judge quick path:
+  npx -y @tesserae/ton-dev-skills doctor --json
+  npx -y @tesserae/ton-dev-skills demo --ci --out ./.ton-dev-artifacts
 `);
-}
-
-function cmdDoctor() {
-  const checks = [];
-  checks.push({ name: 'Node.js >= 18', ok: Number(process.versions.node.split('.')[0]) >= 18, detail: process.versions.node });
-  checks.push({ name: 'Platform', ok: true, detail: `${process.platform}/${process.arch}` });
-  checks.push({ name: 'Write access to cwd', ok: canWrite(process.cwd()), detail: process.cwd() });
-
-  const allOk = checks.every(c => c.ok);
-  console.log(`\n${c('bold', 'TON Dev Doctor')}\n`);
-  for (const chk of checks) {
-    const icon = chk.ok ? c('green', '✓') : c('red', '✗');
-    console.log(` ${icon} ${chk.name} ${c('gray', '(' + chk.detail + ')')}`);
-  }
-  console.log('');
-  if (allOk) {
-    console.log(c('green', 'Environment looks good.'));
-    process.exit(0);
-  }
-  console.log(c('red', 'Environment check failed.'));
-  process.exit(1);
 }
 
 function canWrite(dir) {
@@ -70,36 +64,50 @@ function canWrite(dir) {
   }
 }
 
-function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
+function cmdDoctor(args) {
+  const checks = [
+    { name: 'Node.js >= 18', ok: Number(process.versions.node.split('.')[0]) >= 18, detail: process.versions.node },
+    { name: 'Platform', ok: true, detail: `${process.platform}/${process.arch}` },
+    { name: 'Write access to cwd', ok: canWrite(process.cwd()), detail: process.cwd() }
+  ];
+  const allOk = checks.every(x => x.ok);
+
+  if (hasFlag(args, '--json')) {
+    console.log(JSON.stringify({ ok: allOk, checks, version: VERSION }, null, 2));
+    process.exit(allOk ? 0 : 1);
+  }
+
+  console.log(`\n${c('bold', 'TON Dev Doctor')}\n`);
+  for (const chk of checks) {
+    const icon = chk.ok ? c('green', '✓') : c('red', '✗');
+    console.log(` ${icon} ${chk.name} ${c('gray', '(' + chk.detail + ')')}`);
+  }
+  console.log('');
+  console.log(allOk ? c('green', 'Environment looks good.') : c('red', 'Environment check failed.'));
+  process.exit(allOk ? 0 : 1);
 }
 
 function cmdInit(dir = '.') {
   const root = path.resolve(process.cwd(), dir);
-  ensureDir(root);
-  ensureDir(path.join(root, 'contracts'));
-  ensureDir(path.join(root, 'reports'));
+  fs.mkdirSync(path.join(root, 'contracts'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'reports'), { recursive: true });
 
   const samplePath = path.join(root, 'contracts', 'sample.fc');
   if (!fs.existsSync(samplePath)) {
-    fs.writeFileSync(samplePath, `;; sample.fc
-() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
-  ;; TODO: add sender checks and op dispatch
-}
-`);
+    fs.writeFileSync(samplePath, `;; sample.fc\n() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {\n  ;; TODO: add sender checks and op dispatch\n}\n`);
   }
 
   const configPath = path.join(root, 'ton-dev.config.json');
   if (!fs.existsSync(configPath)) {
-    fs.writeFileSync(configPath, JSON.stringify({
+    writeJson(configPath, {
       version: 1,
       scanner: { format: 'table', failOn: 'high' },
       paths: { contracts: 'contracts', reports: 'reports' }
-    }, null, 2));
+    });
   }
 
   console.log(c('green', `Initialized TON Dev project at ${root}`));
-  console.log(`Next: ton-dev audit ${path.relative(process.cwd(), samplePath)}`);
+  console.log(`Next: ton-dev audit ${path.relative(process.cwd(), samplePath)} --format table`);
 }
 
 const TON_RULES = [
@@ -116,9 +124,7 @@ function cmdRules(args) {
     process.exit(1);
   }
   console.log(`\n${c('bold', 'TON-native rulepack')} (${TON_RULES.length} starter rules)\n`);
-  for (const r of TON_RULES) {
-    console.log(`- ${r.id} [${r.sev}] ${r.title}`);
-  }
+  TON_RULES.forEach(r => console.log(`- ${r.id} [${r.sev}] ${r.title}`));
 }
 
 function collectFiles(inputPath) {
@@ -141,7 +147,7 @@ function collectFiles(inputPath) {
 
 function lineOf(text, needle) {
   const idx = text.indexOf(needle);
-  if (idx < 0) return null;
+  if (idx < 0) return 1;
   return text.slice(0, idx).split('\n').length;
 }
 
@@ -151,27 +157,19 @@ function scanFile(fp) {
 
   const hasStateMutation = /(set_data|save_data|total_supply\s*[+\-]=|store_)/i.test(text);
   const hasBounceCheck = /(flags\s*&\s*1|bounc|0xffffffff)/i.test(text);
-  if (hasStateMutation && !hasBounceCheck) {
-    findings.push({ id: 'TON-BOUNCE-001', severity: 'high', message: 'State mutation without explicit bounced-message handling', line: 1 });
-  }
+  if (hasStateMutation && !hasBounceCheck) findings.push({ id: 'TON-BOUNCE-001', severity: 'high', message: 'State mutation without explicit bounced-message handling', line: 1 });
 
   const hasAdminLike = /(mint|burn|set_code|upgrade|owner|admin)/i.test(text);
   const hasSenderCheck = /(equal_slice_bits\(|sender\(\)|throw_unless\([^\n]*unauthor|require\([^\n]*owner|require\([^\n]*admin)/i.test(text);
-  if (hasAdminLike && !hasSenderCheck) {
-    findings.push({ id: 'TON-AUTH-001', severity: 'critical', message: 'Potential privileged path without clear sender authorization', line: 1 });
-  }
+  if (hasAdminLike && !hasSenderCheck) findings.push({ id: 'TON-AUTH-001', severity: 'critical', message: 'Potential privileged path without clear sender authorization', line: 1 });
 
   const hasSend = /(send_raw_message|message\(|send\()/i.test(text);
   const hasGasCheck = /(msg_value\s*[><=]|context\(\)\.value|throw_unless\([^\n]*gas|getComputeFee|raw_reserve|nativeReserve)/i.test(text);
-  if (hasSend && !hasGasCheck) {
-    findings.push({ id: 'TON-GAS-001', severity: 'medium', message: 'Cross-contract send path without visible gas/value checks', line: lineOf(text, 'send') || 1 });
-  }
+  if (hasSend && !hasGasCheck) findings.push({ id: 'TON-GAS-001', severity: 'medium', message: 'Cross-contract send path without visible gas/value checks', line: lineOf(text, 'send') });
 
   const external = /(recv_external|onExternalMessage)/i.test(text);
   const replay = /(seqno|check_signature|signature)/i.test(text);
-  if (external && !replay) {
-    findings.push({ id: 'TON-EXT-001', severity: 'high', message: 'External message handler without replay/signature checks', line: lineOf(text, 'recv_external') || 1 });
-  }
+  if (external && !replay) findings.push({ id: 'TON-EXT-001', severity: 'high', message: 'External message handler without replay/signature checks', line: lineOf(text, 'recv_external') });
 
   return findings.map(f => ({ ...f, file: fp }));
 }
@@ -205,22 +203,10 @@ function exitCodeFor(findings) {
   return 0;
 }
 
-function cmdAudit(args) {
-  const input = args.find(a => !a.startsWith('--'));
-  if (!input) {
-    console.error('Usage: ton-dev audit <file|dir> [--format table|json|sarif]');
-    process.exit(1);
-  }
-  const fmtArg = args.find(a => a.startsWith('--format'));
-  let format = 'table';
-  if (fmtArg && fmtArg.includes('=')) format = fmtArg.split('=')[1];
-  const idx = args.indexOf('--format');
-  if (idx >= 0 && args[idx + 1]) format = args[idx + 1];
-
+function runAudit(input) {
   const files = collectFiles(input);
   let findings = [];
-  for (const f of files) findings = findings.concat(scanFile(f));
-
+  files.forEach(f => findings = findings.concat(scanFile(f)));
   const summary = {
     scannedFiles: files.length,
     findings: findings.length,
@@ -228,72 +214,99 @@ function cmdAudit(args) {
     high: findings.filter(f => f.severity === 'high').length,
     medium: findings.filter(f => f.severity === 'medium').length,
     low: findings.filter(f => f.severity === 'low').length,
-    generatedAt: new Date().toISOString()
+    generatedAt: new Date().toISOString(),
+    version: VERSION
   };
+  return { summary, findings };
+}
 
-  if (format === 'json') {
-    console.log(JSON.stringify({ summary, findings }, null, 2));
-  } else if (format === 'sarif') {
-    console.log(JSON.stringify(toSarif(findings), null, 2));
-  } else {
-    console.log(`\n${c('bold', 'TON Dev Skills — Security Audit')}\n`);
-    console.log(`Scanned files: ${summary.scannedFiles}`);
-    console.log(`Findings: ${summary.findings} (${summary.critical} critical, ${summary.high} high, ${summary.medium} medium)`);
-    console.log('');
-    if (findings.length === 0) {
-      console.log(c('green', 'No findings.'));
-    } else {
-      for (const f of findings) {
-        const sevColor = f.severity === 'critical' || f.severity === 'high' ? 'red' : 'yellow';
-        console.log(`- ${c(sevColor, '[' + f.severity.toUpperCase() + ']')} ${f.id}: ${f.message}`);
-        console.log(`  ${c('gray', path.relative(process.cwd(), f.file) + ':' + (f.line || 1))}`);
-      }
-    }
+function cmdAudit(args) {
+  const input = args.find(a => !a.startsWith('--'));
+  if (!input) {
+    console.error('Usage: ton-dev audit <file|dir> [--format table|json|sarif] [--out <file>]');
+    process.exit(1);
   }
 
-  process.exit(exitCodeFor(findings));
+  const format = getFlag(args, '--format', 'table');
+  const outFile = getFlag(args, '--out', null);
+  const result = runAudit(input);
+
+  let payload;
+  if (format === 'sarif') payload = toSarif(result.findings);
+  else if (format === 'json') payload = result;
+
+  if (payload) {
+    const text = JSON.stringify(payload, null, 2);
+    if (outFile) {
+      writeJson(path.resolve(process.cwd(), outFile), payload);
+      console.log(`Wrote ${format.toUpperCase()} report: ${outFile}`);
+    } else {
+      console.log(text);
+    }
+  } else {
+    console.log(`\n${c('bold', 'TON Dev Skills — Security Audit')}\n`);
+    console.log(`Scanned files: ${result.summary.scannedFiles}`);
+    console.log(`Findings: ${result.summary.findings} (${result.summary.critical} critical, ${result.summary.high} high, ${result.summary.medium} medium)\n`);
+    if (result.findings.length === 0) console.log(c('green', 'No findings.'));
+    else result.findings.forEach(f => {
+      const sevColor = f.severity === 'critical' || f.severity === 'high' ? 'red' : 'yellow';
+      console.log(`- ${c(sevColor, '[' + f.severity.toUpperCase() + ']')} ${f.id}: ${f.message}`);
+      console.log(`  ${c('gray', path.relative(process.cwd(), f.file) + ':' + (f.line || 1))}`);
+    });
+  }
+
+  process.exit(exitCodeFor(result.findings));
 }
 
 function cmdDemo(args) {
-  const json = args.includes('--json');
+  const ci = hasFlag(args, '--ci');
+  const json = hasFlag(args, '--json');
+  const outDir = path.resolve(process.cwd(), getFlag(args, '--out', './.ton-dev-artifacts'));
   const sample = path.join(__dirname, 'examples', 'jetton.fc');
-  const findings = fs.existsSync(sample) ? scanFile(sample) : [];
-  const out = {
+  const result = runAudit(sample);
+  const code = exitCodeFor(result.findings);
+
+  const summary = {
     demo: 'ton-dev-skills',
-    sample,
-    durationMs: 120,
-    summary: {
-      findings: findings.length,
-      critical: findings.filter(f => f.severity === 'critical').length,
-      high: findings.filter(f => f.severity === 'high').length,
-      medium: findings.filter(f => f.severity === 'medium').length
-    },
-    topFindings: findings.slice(0, 3)
+    sample: path.relative(process.cwd(), sample),
+    pass: code === 0,
+    exitCode: code,
+    summary: result.summary,
+    topFindings: result.findings.slice(0, 3)
   };
 
+  if (ci) {
+    const jsonPath = path.join(outDir, 'demo-summary.json');
+    const sarifPath = path.join(outDir, 'demo.sarif');
+    writeJson(jsonPath, summary);
+    writeJson(sarifPath, toSarif(result.findings));
+    console.log(`CI_RESULT=${summary.pass ? 'PASS' : 'FAIL'} EXIT_CODE=${code} SUMMARY=${jsonPath} SARIF=${sarifPath}`);
+    process.exit(code);
+  }
+
   if (json) {
-    console.log(JSON.stringify(out, null, 2));
+    console.log(JSON.stringify(summary, null, 2));
   } else {
     console.log(`\n${c('bold', 'TON Dev Skills — Demo')}\n`);
-    console.log(`Sample: ${path.relative(process.cwd(), sample)}`);
-    console.log(`Findings: ${out.summary.findings} (${out.summary.critical} critical, ${out.summary.high} high, ${out.summary.medium} medium)`);
-    console.log('Tip: run `ton-dev audit examples/jetton.fc --format sarif` for CI output.');
+    console.log(`Sample: ${summary.sample}`);
+    console.log(`Findings: ${result.summary.findings} (${result.summary.critical} critical, ${result.summary.high} high, ${result.summary.medium} medium)`);
+    console.log('Tip: ton-dev demo --ci --out ./.ton-dev-artifacts');
   }
-  process.exit(exitCodeFor(findings));
+
+  process.exit(code);
 }
 
 function main() {
   const [, , cmd, ...args] = process.argv;
-  if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') return help();
-  if (cmd === '--version' || cmd === '-v') return console.log(VERSION);
+  if (!cmd || ['help', '--help', '-h'].includes(cmd)) return help();
+  if (['--version', '-v'].includes(cmd)) return console.log(VERSION);
 
   try {
-    if (cmd === 'doctor') return cmdDoctor();
+    if (cmd === 'doctor') return cmdDoctor(args);
     if (cmd === 'init') return cmdInit(args[0] || '.');
     if (cmd === 'rules') return cmdRules(args);
     if (cmd === 'audit') return cmdAudit(args);
     if (cmd === 'demo') return cmdDemo(args);
-
     console.error(`Unknown command: ${cmd}`);
     help();
     process.exit(1);

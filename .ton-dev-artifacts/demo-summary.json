@@ -1,0 +1,39 @@
+{
+  "demo": "ton-dev-skills",
+  "sample": "examples/jetton.fc",
+  "pass": false,
+  "exitCode": 2,
+  "summary": {
+    "scannedFiles": 1,
+    "findings": 3,
+    "critical": 1,
+    "high": 1,
+    "medium": 1,
+    "low": 0,
+    "generatedAt": "2026-02-24T14:02:18.377Z",
+    "version": "0.1.2"
+  },
+  "topFindings": [
+    {
+      "id": "TON-BOUNCE-001",
+      "severity": "high",
+      "message": "State mutation without explicit bounced-message handling",
+      "line": 1,
+      "file": "/tmp/ton-dev-skills/examples/jetton.fc"
+    },
+    {
+      "id": "TON-AUTH-001",
+      "severity": "critical",
+      "message": "Potential privileged path without clear sender authorization",
+      "line": 1,
+      "file": "/tmp/ton-dev-skills/examples/jetton.fc"
+    },
+    {
+      "id": "TON-GAS-001",
+      "severity": "medium",
+      "message": "Cross-contract send path without visible gas/value checks",
+      "line": 11,
+      "file": "/tmp/ton-dev-skills/examples/jetton.fc"
+    }
+  ]
+}

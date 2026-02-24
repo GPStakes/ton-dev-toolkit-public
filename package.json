@@ -22,10 +22,10 @@
     "url": "https://github.com/TesseraeVentures/ton-dev-skills.git"
   },
   "bin": {
-    "ton-dev": "./dist/index.js"
+    "ton-dev": "./cli.js"
   },
   "files": [
-    "dist/**",
+    "cli.js",
     "examples/**",
     "README.md",
     "LICENSE"
